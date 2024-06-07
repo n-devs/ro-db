@@ -1,0 +1,43 @@
+version: '3' # vs mais atual
+
+services:
+  db:
+    build: ./
+    container_name: ro-db
+    restart: always
+    tty: true
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./dbdata:/var/lib/mysql
+      - ./sql-files:/docker-entrypoint-initdb.d
+      - ./log:/var/log/mysql
+    environment:
+      - MYSQL_DATABASE=ragnarok
+      - MYSQL_ROOT_PASSWORD=R00t+
+      - MYSQL_USER=ragnarok
+      - MYSQL_PASSWORD=ragnarok
+    networks:
+      - ro-network
+
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: phpmyadmin
+    restart: always
+    ports:
+      # 8080 is the host port and 80 is the docker port
+      - "9000:80"
+    environment:
+      - PMA_ARBITRARY:1
+      - PMA_HOST:db
+      - MYSQL_USERNAME:ragnarok
+      - MYSQL_ROOT_PASSWORD:ragnarok
+    depends_on:
+      - db
+    networks:
+      - ro-network
+    
+
+networks:
+  ro-network:
+    driver: bridge
